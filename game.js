@@ -36,45 +36,55 @@ const finish = start.plus(moveTo.times(2));
 console.log(`Исходное расположение: ${start.x}:${start.y}`);
 console.log(`Текущее расположение: ${finish.x}:${finish.y}`);
 
-// class Actor {
-//   constructor (coords={x:0,y:0}, objSize={height:1, width:1}, objSpeed={x:0,y:0}) {
-//     try {  
-//       if (coords !instanceof Vector || objSize !instanceof Vector || objSpeed !instanceof Vector) {
-//         throw new Error('Аргументы должны быть типа Vector');
-//       }
-//     } catch (e) {
-//         throw e;
-//     }
-//   }
-//   get pos (vector) {
-//     this.x = coords.x;
-//     this.y = coords.y;
-//   }
-//   get size (vector) {
-//     this.height = vector.height;
-//     this.width = vector.width;
-//   }
-//   get speed (vector) {
-//     this.x += vector.x;
-//     this.y += vector.y;
-//   }
-//   act () {}
-//   set left () {
+class Actor {
+  constructor (coords={x:0,y:0}, objSize={height:1, width:1}, objSpeed={x:0,y:0}) {
+    try {  
+      if (coords !instanceof Vector || objSize !instanceof Vector || objSpeed !instanceof Vector) {
+        throw new Error('Аргументы должны быть типа Vector');
+      } else {
+        const actorObject = {};
+        actorObject.x = coords.x;
+        actorObject.y = coords.y;
+        actorObject.height = objSize.height;
+        actorObject.width = objSize.width;
+        actorObject.speedX = objSpeed.x;
+        actorObject.speedY = objSpeed.y;
+        return actorObject;
+      }
+    } catch (e) {
+        throw e;
+    }
+  }
+  get pos (vector) {
+    this.x = coords.x;
+    this.y = coords.y;
+  }
+  get size (vector) {
+    this.height = vector.height;
+    this.width = vector.width;
+  }
+  get speed (vector) {
+    this.x += vector.x;
+    this.y += vector.y;
+  }
+  act () {}
+  
+  left () {
+  Object.defineProperty(this, "left",{writable:false});
+  }
+  right () {
 
-//   }
-//   set right () {
+  }
+  top () {
 
-//   }
-//   set top () {
+  }
+  bottom () {
 
-//   }
-//   set bottom () {
-
-//   }
-//   set type () {
-//    return 'actor'; 
-//   }
-// }
+  }
+  type () {
+   return 'actor'; 
+  }
+}
 /*
 2. После этого вы уже сможете запустить игру.
   ```javascript
