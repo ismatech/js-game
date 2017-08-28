@@ -37,52 +37,177 @@ console.log(`Исходное расположение: ${start.x}:${start.y}`);
 console.log(`Текущее расположение: ${finish.x}:${finish.y}`);
 
 class Actor {
-  constructor (coords={x:0,y:0}, objSize={height:1, width:1}, objSpeed={x:0,y:0}) {
+  constructor (pos=new Vector(), size=new Vector(1,1), speed=new Vector()) {
     try {  
-      if (coords !instanceof Vector || objSize !instanceof Vector || objSpeed !instanceof Vector) {
+      if (!(pos instanceof Vector) || !(size instanceof Vector) || !(speed instanceof Vector)) {
         throw new Error('Аргументы должны быть типа Vector');
-      } else {
-        const actorObject = {};
-        actorObject.x = coords.x;
-        actorObject.y = coords.y;
-        actorObject.height = objSize.height;
-        actorObject.width = objSize.width;
-        actorObject.speedX = objSpeed.x;
-        actorObject.speedY = objSpeed.y;
-        return actorObject;
-      }
+      } 
+      const newActor = new Actor();
+      newActor.pos = pos;
+      newActor.size = size;
+      newActor.speed = speed;
+      Object.defineProperty(newActor, 'type', {value:'actor', writable: false});
+      return newActor;
     } catch (e) {
         throw e;
     }
   }
-  get pos (vector) {
-    this.x = coords.x;
-    this.y = coords.y;
-  }
-  get size (vector) {
-    this.height = vector.height;
-    this.width = vector.width;
-  }
-  get speed (vector) {
-    this.x += vector.x;
-    this.y += vector.y;
-  }
+
   act () {}
   
-  left () {
-  Object.defineProperty(this, "left",{writable:false});
+  get left() {
+    return this.pos.x;
   }
-  right () {
 
+  get top() {
+    return this.pos.y;
   }
-  top () {
 
+  get right() {
+    return this.pos.x + this.size.x;
   }
-  bottom () {
 
+  get bottom() {
+    return this.pos.y + this.size.y;
   }
-  type () {
-   return 'actor'; 
+
+  get type() {
+    return this.type;
+  }
+
+  isIntersect(actor) {
+    if (!(actor instanceof Actor) || actor === undefined) {
+          throw Error('Аргументы должны быть типа Actor');
+    }
+
+    if (actor === this || actor.size.x < 0 || actor.size.y < 0) {
+          return false;
+      }
+
+  return console.log(!(actor.left >= this.right || actor.right <= this.left || actor.top >= this.bottom || actor.bottom <= this.top));
+  }
+}
+const items = new Map();
+const player = new Actor();
+items.set('Игрок', player);
+items.set('Первая монета', new Actor(new Vector(10, 10)));
+items.set('Вторая монета', new Actor(new Vector(15, 5)));
+
+function position(item) {
+  return ['left', 'top', 'right', 'bottom']
+    .map(side => `${side}: ${item[side]}`)
+    .join(', ');  
+}
+
+function movePlayer(x, y) {
+  player.pos = player.pos.plus(new Vector(x, y));
+}
+
+function status(item, title) {
+  console.log(`${title}: ${position(item)}`);
+  if (player.isIntersect(item)) {
+    console.log(`Игрок подобрал ${title}`);
+  }
+}
+
+items.forEach(status);
+movePlayer(10, 10);
+items.forEach(status);
+movePlayer(5, -5);
+items.forEach(status);
+
+class Level {
+  constructor(grid = [], actors = []) {
+    this.grid = grid;
+    this.actors = actors;
+    this.height = grid.length;
+    this.width = grid.reduce((acc, el) => el.length > acc ? el.length : acc, 0);
+    this.status = null;
+    this.finishDelay = 1;
+    this.player = actors.find(el => el.type === 'player');
+  }
+
+  isFinished() {
+    return this.status !== null && this.finishDelay < 0 ? true : false;
+  }
+
+  actorAt(actor) {
+    if (!actor || !(actor instanceof Actor)) {
+      throw Error('arguments error');
+    }
+    return this.actors.find(el => el.isIntersect(actor));
+  }
+
+  isObstacle(x, y) {
+    const wall = 'wall';
+    const lava = 'lava';
+    const grid = this.grid;
+    return (grid[y] && grid[y][x] && ((grid[y][x] === wall) || (grid[y][x] === lava)));
+  }
+
+  obstacleAt(nextPos, size) {
+    if (!(nextPos instanceof Vector) ||
+        !(size instanceof Vector)) {
+      throw Error('arguments error');
+    }
+    const sizeX = size.x - 0.0001;
+    const sizeY = size.y - 0.0001;
+    const grid = this.grid;
+    const x = nextPos.x;
+    const y = nextPos.y;
+    const left = Math.floor(x);
+    const top = Math.floor(y);
+    const bottom = Math.floor(y + sizeY);
+    const rigth = Math.floor(x + sizeX);
+    const middle = Math.round(top + sizeY / 2);
+
+    if (this.isObstacle(left, top)) {
+      return grid[top][left];
+    }
+    if (this.isObstacle(rigth, top)) {
+      return grid[top][rigth];
+    }
+    if (this.isObstacle(left, bottom)) {
+        return grid[bottom][left];
+    }
+    if (this.isObstacle(rigth, bottom)) {
+        return grid[bottom][rigth];
+    }
+    if (this.isObstacle(left, middle)) {
+        return grid[middle][left];
+    }
+    if (this.isObstacle(rigth, middle)) {
+        return grid[middle][rigth];
+    }
+    if (left < 0 || x + sizeX > this.width || top < 0) {
+      return 'wall';
+    }
+    if (y + sizeY > this.height) {
+      return 'lava';
+    }
+  }
+
+  removeActor(actor) {
+    this.actors = this.actors.filter(el => el !== actor);
+  }
+
+  noMoreActors(type) {
+    const result = this.actors.filter(el => el.type === type);
+    return result.length > 0 ? false : true;
+  }
+
+  playerTouched(type, actor) {
+    if (this.status !== null) {
+      return;
+    }
+    if (type === 'lava' || type === 'fireball') {
+      this.status = 'lost';
+    } else if (type === 'coin') {
+      this.removeActor(actor);
+      if (!this.actors.find(el => el.type === 'coin')) {
+        this.status = 'won';
+      }
+    }
   }
 }
 /*
