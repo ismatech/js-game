@@ -31,7 +31,53 @@ const moveTo = new Vector(5, 10);
 const finish = start.plus(moveTo.times(2));
 console.log(`Исходное расположение: ${start.x}:${start.y}`);
 console.log(`Текущее расположение: ${finish.x}:${finish.y}`);
+class Actor {
+  constructor(pos = new Vector(), size = new Vector(1, 1), speed = new Vector()) {
+    if (!(pos instanceof Vector) ||
+        !(size instanceof Vector) ||
+        !(speed instanceof Vector)) {
+          throw Error('arguments error');
+        }
+    this.pos = pos;
+    this.size = size;
+    this.speed = speed;
+    this._type = 'actor';
+  }
 
+  act() {}
+
+  get left() {
+    return this.pos.x;
+  }
+
+  get top() {
+    return this.pos.y;
+  }
+
+  get right() {
+    return this.pos.x + this.size.x;
+  }
+
+  get bottom() {
+    return this.pos.y + this.size.y;
+  }
+
+  get type() {
+    return this._type;
+  }
+
+  isIntersect(actor) {
+    if (!(actor instanceof Actor) || actor === undefined) {
+          throw Error('arguments error');
+    }
+
+    if (actor === this || actor.size.x < 0 || actor.size.y < 0) {
+          return false;
+      }
+
+  return !(actor.left >= this.right || actor.right <= this.left || actor.top >= this.bottom || actor.bottom <= this.top);
+  }
+}
 /*
 2. После этого вы уже сможете запустить игру.
   ```javascript
