@@ -263,11 +263,30 @@ class LevelParser {
   createGrid(arrOfString) {
     let objstring;
     return arrOfString.map(str => str.split('').map(elem => {
-      if(elem === '!') {
-        objstring = 'lava';
-      } else if (elem === 'x') {
-        objstring = 'wall';
+      switch(elem) {
+        case '!':
+          objstring = 'lava';
+          break;
+        case 'x':
+          objstring = 'wall';
+          break;
+        case '@':
+          objstring = 'actor';
+          break;
+        case 'o':
+          objstring = 'coin';
+          break;
+        case '=':
+          objstring = 'horizontal fireball';
+          break;
+        case '|':
+          objstring = 'vertical fireball';
+          break;
+        case 'v':
+          objstring = 'fire rain';
+          break;
       }
+      
       // console.log(objstring);
       return objstring;
     }));
@@ -297,22 +316,53 @@ class LevelParser {
   }
 }
 /*checking code for the class LevelParser*/
-const plan = [
-  ' @ ',
-  'x!x'
-];
-console.log(plan);
-const actorsDict = Object.create(null);
-actorsDict['@'] = Actor;
+// const plan = [
+//   ' @ ',
+//   'x!x',
+//   '@xo|'
+// ];
+// console.log(plan);
+// const actorsDict = Object.create(null);
+// actorsDict['@'] = Actor;
 
-const parser = new LevelParser(actorsDict);
-const level = parser.parse(plan);
+// const parser = new LevelParser(actorsDict);
+// const level = parser.parse(plan);
 
-level.grid.forEach((line, y) => {
-  line.forEach((cell, x) => console.log(`(${x}:${y}) ${cell}`));
-});
+// level.grid.forEach((line, y) => {
+//   line.forEach((cell, x) => console.log(`(${x}:${y}) ${cell}`));
+// });
 
-level.actors.forEach(actor => console.log(`(${actor.pos.x}:${actor.pos.y}) ${actor.type}`));
+// level.actors.forEach(actor => console.log(`(${actor.pos.x}:${actor.pos.y}) ${actor.type}`));
+class Fireball extends Actor {
+  constructor(location = new Vector(), speed = new Vector()) {
+    super(location, undefined, speed);
+    this._type = 'fireball';
+  }
+
+  act(time, level) {
+    const nextPos = this.getNextPosition(time);
+    const obj = level.obstacleAt(nextPos, this.size);
+    if (obj) {
+      this.handleObstacle();
+      return;
+    }
+    this.pos = nextPos;
+  }
+
+  getNextPosition(time = 1) {
+    return new Vector(this.pos.x + this.speed.x * time, this.pos.y + this.speed.y * time);
+  }
+
+  handleObstacle() {
+    if (this.speed.x > 0 || this.speed.y > 0) {
+      this.speed.x = -this.speed.x;
+      this.speed.y = -this.speed.y;
+    } else {
+      this.speed.x = Math.abs(this.speed.x);
+      this.speed.y = Math.abs(this.speed.y);
+    }
+  }
+}
 /*
 2. После этого вы уже сможете запустить игру.
   ```javascript
