@@ -363,6 +363,40 @@ class Fireball extends Actor {
     }
   }
 }
+/*checking code for class Fireball*/
+// const time = 5;
+// const speed = new Vector(1, 0);
+// const position = new Vector(5, 5);
+
+// const ball = new Fireball(position, speed);
+
+// const nextPosition = ball.getNextPosition(time);
+// console.log(`Новая позиция: ${nextPosition.x}: ${nextPosition.y}`);
+
+// ball.handleObstacle();
+// console.log(`Текущая скорость: ${ball.speed.x}: ${ball.speed.y}`);
+
+class HorizontalFireball extends Fireball {
+  constructor(location) {
+    super(location, new Vector(2, 0));
+  }
+}
+
+class VerticalFireball extends Fireball {
+  constructor(location) {
+    super(location, new Vector(0, 2));
+  }
+}
+class FireRain extends Fireball {
+  constructor(location) {
+    super(location, new Vector(0, 3));
+    this.start = location;
+  }
+
+  handleObstacle() {
+    this.pos = this.start;
+  }
+}
 /*
 2. После этого вы уже сможете запустить игру.
   ```javascript
