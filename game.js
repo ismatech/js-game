@@ -261,34 +261,12 @@ class LevelParser {
   }
 
   createGrid(arrOfString) {
-    let objstring;
     return arrOfString.map(str => str.split('').map(elem => {
-      switch(elem) {
-        case '!':
-          objstring = 'lava';
-          break;
-        case 'x':
-          objstring = 'wall';
-          break;
-        case '@':
-          objstring = 'actor';
-          break;
-        case 'o':
-          objstring = 'coin';
-          break;
-        case '=':
-          objstring = 'horizontal fireball';
-          break;
-        case '|':
-          objstring = 'vertical fireball';
-          break;
-        case 'v':
-          objstring = 'fire rain';
-          break;
+      if(elem === '!') {
+        return 'lava';
+      } else if (elem === 'x') {
+        return 'wall';
       }
-      
-      // console.log(objstring);
-      return objstring;
     }));
   }
 
@@ -318,8 +296,7 @@ class LevelParser {
 /*checking code for the class LevelParser*/
 // const plan = [
 //   ' @ ',
-//   'x!x',
-//   '@xo|'
+//   'x!x'
 // ];
 // console.log(plan);
 // const actorsDict = Object.create(null);
@@ -333,6 +310,7 @@ class LevelParser {
 // });
 
 // level.actors.forEach(actor => console.log(`(${actor.pos.x}:${actor.pos.y}) ${actor.type}`));
+
 class Fireball extends Actor {
   constructor(location = new Vector(), speed = new Vector()) {
     super(location, undefined, speed);
@@ -397,6 +375,7 @@ class FireRain extends Fireball {
     this.pos = this.start;
   }
 }
+
 /*
 2. После этого вы уже сможете запустить игру.
   ```javascript
