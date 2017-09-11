@@ -398,12 +398,21 @@ class Coin extends Actor {
   getNextPosition(time = 1) {
     this.updateSpring(time);
     const newVector = this.getSpringVector();
+    console.log(`this y = ${this.y} and new vector y = ${newVector.y}`);
     return new Vector(this.location.x + newVector.x, this.location.y + newVector.y);
   }
-  
+
   act(time) {
     const next = this.getNextPosition(time);
     this.pos = next;
+  }
+}
+
+class Player extends Actor {
+  constructor(location) {
+    super(location, new Vector(0.8, 1.5));
+    this._type = 'player';
+    this.pos.y -= 0.5;
   }
 }
 /*
@@ -437,22 +446,24 @@ class Coin extends Actor {
   ```
 4. Реализуйте `Player`, поместите его символ на схему и добавьте словарь при создании парсера:
   ```javascript
-  const schema = [
-    '         ',
-    '         ',
-    '         ',
-    '         ',
-    '     !xxx',
-    ' @       ',
-    'xxx!     ',
-    '         '
-  ];
-  const actorDict = {
-    '@': Player
-  }
-  const parser = new LevelParser(actorDict);
-  const level = parser.parse(schema);
-  runLevel(level, DOMDisplay);
+  */
+  // const schema = [
+  //   '         ',
+  //   '         ',
+  //   '         ',
+  //   '         ',
+  //   '     !xxx',
+  //   ' @       ',
+  //   'xxx!     ',
+  //   '         '
+  // ];
+  // const actorDict = {
+  //   '@': Player
+  // }
+  // const parser = new LevelParser(actorDict);
+  // const level = parser.parse(schema);
+  // runLevel(level, DOMDisplay);
+  /*
   ```
 5. Реализуйте другие движущиеся объекты игрового поля и помещайте их символы на схему и в словарь парсера.
 6. Реализуйте загрузку уровней с помощью функции `loadLevels` и запуск игры с помощью `runGame`.
