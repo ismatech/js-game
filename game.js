@@ -375,7 +375,37 @@ class FireRain extends Fireball {
     this.pos = this.start;
   }
 }
+class Coin extends Actor {
+  constructor(location = new Vector()) {
+    super(location, new Vector(0.6, 0.6));
+    this.pos.x += 0.2;
+    this.pos.y += 0.1;
+    this._type = 'coin';
+    this.location = location;
+    this.springSpeed = 8;
+    this.springDist = 0.07;
+    this.spring = Math.random() * (Math.PI * 2);
+  }
 
+  updateSpring(time = 1) {
+    this.spring += this.springSpeed * time;
+  }
+
+  getSpringVector() {
+    return new Vector(0, Math.sin(this.spring) * this.springDist);
+  }
+
+  getNextPosition(time = 1) {
+    this.updateSpring(time);
+    const newVector = this.getSpringVector();
+    return new Vector(this.location.x + newVector.x, this.location.y + newVector.y);
+  }
+  
+  act(time) {
+    const next = this.getNextPosition(time);
+    this.pos = next;
+  }
+}
 /*
 2. После этого вы уже сможете запустить игру.
   ```javascript
