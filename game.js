@@ -1,23 +1,18 @@
 'use strict';
-/*
-## Процесс и порядок реализации
-
-Для того, чтобы максимально просто и быстро получить базовый рабочий вариант проекта, рекомендуем придерживаться следующего плана разработки:
-
-1. Реализовать базовые классы игры: `Vector`, `Actor` и `Level`.*/
 class Vector {
 	constructor(x=0, y=0) {
     this.x = x;
     this.y = y;
   }
   plus(vector) {
-    if (vector instanceof Vector) {
+    if (!(vector instanceof Vector)) {
+      throw new Error('Можно прибавлять к вектору только вектор типа Vector!');
+    } else {
       const newObject = new Vector();
       newObject.x = this.x + vector.x;
       newObject.y = this.y + vector.y; 
       return newObject;
-    } 
-      throw new Error('Можно прибавлять к вектору только вектор типа Vector!');
+    }
   }
   times (multiplier) {
     const newVector = new Vector();
@@ -43,7 +38,7 @@ class Actor {
     this.pos = pos;
     this.size = size;
     this.speed = speed;
-    this._type = 'actor';
+    this.type = 'actor';
   }
 
   act() {}
@@ -65,7 +60,7 @@ class Actor {
   }
 
   get type() {
-    return this._type;
+    return this.type;
   }
 
   isIntersect(actor) {
@@ -136,7 +131,11 @@ class Level {
     const wall = 'wall';
     const lava = 'lava';
     const grid = this.grid;
-    return (grid[y] && grid[y][x] && ((grid[y][x] === wall) || (grid[y][x] === lava)));
+    if (grid[y] && grid[y][x] && ((grid[y][x] === wall) || (grid[y][x] === lava))) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   obstacleAt(nextPos, size) {
@@ -314,7 +313,7 @@ class LevelParser {
 class Fireball extends Actor {
   constructor(location = new Vector(), speed = new Vector()) {
     super(location, undefined, speed);
-    this._type = 'fireball';
+    this.type = 'fireball';
   }
 
   act(time, level) {
@@ -380,7 +379,7 @@ class Coin extends Actor {
     super(location, new Vector(0.6, 0.6));
     this.pos.x += 0.2;
     this.pos.y += 0.1;
-    this._type = 'coin';
+    this.type = 'coin';
     this.location = location;
     this.springSpeed = 8;
     this.springDist = 0.07;
@@ -411,61 +410,7 @@ class Coin extends Actor {
 class Player extends Actor {
   constructor(location) {
     super(location, new Vector(0.8, 1.5));
-    this._type = 'player';
+    this.type = 'player';
     this.pos.y -= 0.5;
   }
 }
-/*
-2. После этого вы уже сможете запустить игру.
-  ```javascript
-  const grid = [
-    new Array(3),
-    ['wall', 'wall', 'lava']
-  ];
-  const level = new Level(grid);
-  runLevel(level, DOMDisplay);
-  ```
-
-  На экране отобразится схема уровня. Узнайте подробнее про функцию `runLevel` и класс `DOMDisplay` ниже.
-
-3. Реализуйте `LevelParser`, что позволит вам описывать уровни с помощью текстовой схемы:
-  ```javascript
-  const schema = [
-    '         ',
-    '         ',
-    '         ',
-    '         ',
-    '     !xxx',
-    '         ',
-    'xxx!     ',
-    '         '
-  ];
-  const parser = new LevelParser();
-  const level = parser.parse(schema);
-  runLevel(level, DOMDisplay);
-  ```
-4. Реализуйте `Player`, поместите его символ на схему и добавьте словарь при создании парсера:
-  ```javascript
-  */
-  // const schema = [
-  //   '         ',
-  //   '         ',
-  //   '         ',
-  //   '         ',
-  //   '     !xxx',
-  //   ' @       ',
-  //   'xxx!     ',
-  //   '         '
-  // ];
-  // const actorDict = {
-  //   '@': Player
-  // }
-  // const parser = new LevelParser(actorDict);
-  // const level = parser.parse(schema);
-  // runLevel(level, DOMDisplay);
-  /*
-  ```
-5. Реализуйте другие движущиеся объекты игрового поля и помещайте их символы на схему и в словарь парсера.
-6. Реализуйте загрузку уровней с помощью функции `loadLevels` и запуск игры с помощью `runGame`.
-7. Когда игрок пройдет все уровни, используйте функцию `alert`, чтобы сообщить о победе.
-*/
