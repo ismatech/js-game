@@ -38,7 +38,8 @@ class Actor {
     this.pos = pos;
     this.size = size;
     this.speed = speed;
-    Object.defineProperty(this, 'type', {value:'actor',wirtabe:false});
+    // this._type = 'actor';
+    Object.defineProperty(this, 'type', {value: 'actor', writable: false});
   }
 
   act() {}
@@ -109,11 +110,11 @@ class Level {
   constructor(grid = [], actors = []) {
     this.grid = grid;
     this.actors = actors;
-    this.height = this.grid.length;
-    this.width = this.grid.reduce((cell, row) => row.length > cell ? row.length : cell, 0);
+    this.height = grid.length;
+    this.width = grid.reduce((cell, row) => row.length > cell ? row.length : cell, 0);
     this.status = null;
     this.finishDelay = 1;
-    this.player = this.actors.find(elem => elem.type === 'player');
+    this.player = actors.find(elem => elem.type === 'player');
   }
 
   isFinished() {
@@ -313,7 +314,8 @@ class LevelParser {
 class Fireball extends Actor {
   constructor(location = new Vector(), speed = new Vector()) {
     super(location, undefined, speed);
-    Object.defineProperty(this, 'type', {value:'fireball', writable:false});
+    // this._type = 'fireball';
+    Object.defineProperty(this, 'type', {value: 'fireball', writable: false});
   }
 
   act(time, level) {
@@ -327,7 +329,6 @@ class Fireball extends Actor {
   }
 
   getNextPosition(time = 1) {
-    // return new Vector(this.pos.x + this.speed.x * time, this.pos.y + this.speed.y * time);
     return new Vector(this.plus(this.times(time)));
   }
 
@@ -380,7 +381,8 @@ class Coin extends Actor {
     super(location, new Vector(0.6, 0.6));
     this.pos.x += 0.2;
     this.pos.y += 0.1;
-    Object.defineProperty(this,'type',{value:'coin',writable:false});
+    this.type = 'coin';
+    // Object.defineProperty(this, 'type', {value: 'coin', writable: false});
     this.location = location;
     this.springSpeed = 8;
     this.springDist = 0.07;
@@ -398,8 +400,8 @@ class Coin extends Actor {
   getNextPosition(time = 1) {
     this.updateSpring(time);
     const newVector = this.getSpringVector();
-    console.log(`this y = ${this.y} and new vector y = ${newVector.y}`);
-    return new Vector(this.location.x + newVector.x, this.location.y + newVector.y);
+    // console.log(`this y = ${this.y} and new vector y = ${newVector.y}`);
+    return new Vector(this.plus(this.times(newVector)));
   }
 
   act(time) {
@@ -412,39 +414,20 @@ class Player extends Actor {
   constructor(location) {
     super(location, new Vector(0.8, 1.5));
     this.type = 'player';
-    // Object.defineProperty(this,'type',{value:'player',configurable:false,writable:false});
     this.pos.y -= 0.5;
   }
 }
 
-const schemas = [
-  [
-    '         ',
-    '         ',
-    '    =    ',
-    '       o ',
-    '     !xxx',
-    ' @       ',
-    'xxx!     ',
-    '         '
-  ],
-  [
-    '      v  ',
-    '    v    ',
-    '  v      ',
-    '        o',
-    '        x',
-    '@   x    ',
-    'x        ',
-    '         '
-  ]
-];
 const actorDict = {
-  '@': Player,
-  'v': FireRain,
-  '=':HorizontalFireball,
-  'o':Coin
-}
-const parser = new LevelParser(actorDict);
-runGame(schemas, parser, DOMDisplay)
-  .then(() => console.log('Вы выиграли приз!'));
+ '@': Player,
+ '=':HorizontalFireball,
+ 'o':Coin,
+ '|':VerticalFireball
+  };
+  const parser = new LevelParser(actorDict);
+  loadLevels()
+  .then(schemas => runGame(JSON.parse(schemas), parser, DOMDisplay))
+  .then(function(){
+    document.body.innerHTML = '<marquee><h1 style=\"color:red\">Вы выиграли приз!</h1></marquee>';
+  })
+  .catch(err => console.log(err));
