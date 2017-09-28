@@ -8,17 +8,11 @@ class Vector {
     if (!(vector instanceof Vector)) {
       throw new Error('Можно прибавлять к вектору только вектор типа Vector!');
     } else {
-      const newObject = new Vector();
-      newObject.x = this.x + vector.x;
-      newObject.y = this.y + vector.y; 
-      return newObject;
+      return new Vector(this.x + vector.x, this.y + vector.y);
     }
   }
   times (multiplier) {
-    const newVector = new Vector();
-    newVector.x = this.x * multiplier;
-    newVector.y = this.y * multiplier;
-    return newVector;
+    return new Vector(this.x * multiplier, this.y * multiplier);
   }
 }
 /*checking code in console for the 1st class*/
@@ -38,9 +32,7 @@ class Actor {
     this.pos = pos;
     this.size = size;
     this.speed = speed;
-    // this._type = 'actor';
-    Object.defineProperty(this, 'type', {value: 'actor', writable: false});
-  }
+    }
 
   act() {}
 
@@ -61,7 +53,7 @@ class Actor {
   }
 
   get type() {
-    return this.type;
+    return 'actor';
   }
 
   isIntersect(actor) {
@@ -272,7 +264,6 @@ class LevelParser {
 
   createActors(arrOfActors) {
     const arr = arrOfActors.map(str => str.split(''));
-    // console.log(arr);
     const actors = [];
     arr.forEach((row, y) => {
       row.forEach((cell, x) => {
@@ -314,10 +305,10 @@ class LevelParser {
 class Fireball extends Actor {
   constructor(location = new Vector(), speed = new Vector()) {
     super(location, undefined, speed);
-    // this._type = 'fireball';
-    Object.defineProperty(this, 'type', {value: 'fireball', writable: false});
   }
-
+  get type() {
+    return 'fireball';
+  }
   act(time, level) {
     const nextPos = this.getNextPosition(time);
     const obj = level.obstacleAt(nextPos, this.size);
@@ -329,7 +320,9 @@ class Fireball extends Actor {
   }
 
   getNextPosition(time = 1) {
-    return new Vector(this.plus(this.times(time)));
+    let fireballVector = new Vector();
+    fireballVector = this.pos.plus(this.speed.times(time))
+    return fireballVector;
   }
 
   handleObstacle() {
@@ -381,14 +374,14 @@ class Coin extends Actor {
     super(location, new Vector(0.6, 0.6));
     this.pos.x += 0.2;
     this.pos.y += 0.1;
-    this.type = 'coin';
-    // Object.defineProperty(this, 'type', {value: 'coin', writable: false});
     this.location = location;
     this.springSpeed = 8;
     this.springDist = 0.07;
     this.spring = Math.random() * (Math.PI * 2);
   }
-
+  get type() {
+    return 'coin';
+  }
   updateSpring(time = 1) {
     this.spring += this.springSpeed * time;
   }
@@ -399,9 +392,9 @@ class Coin extends Actor {
 
   getNextPosition(time = 1) {
     this.updateSpring(time);
-    const newVector = this.getSpringVector();
-    // console.log(`this y = ${this.y} and new vector y = ${newVector.y}`);
-    return new Vector(this.plus(this.times(newVector)));
+    let sprVector = new Vector();
+    sprVector = this.getSpringVector();
+    return this.location.plus(sprVector);
   }
 
   act(time) {
@@ -413,8 +406,10 @@ class Coin extends Actor {
 class Player extends Actor {
   constructor(location) {
     super(location, new Vector(0.8, 1.5));
-    this.type = 'player';
     this.pos.y -= 0.5;
+  }
+  get type() {
+    return 'player';
   }
 }
 
@@ -428,6 +423,6 @@ const actorDict = {
   loadLevels()
   .then(schemas => runGame(JSON.parse(schemas), parser, DOMDisplay))
   .then(function(){
-    document.body.innerHTML = '<marquee><h1 style=\"color:red\">Вы выиграли приз!</h1></marquee>';
+    document.body.innerHTML = '<h1 style=\"color:red\">Вы выиграли приз!</h1>';
   })
   .catch(err => console.log(err));
