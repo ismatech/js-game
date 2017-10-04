@@ -233,7 +233,7 @@ class Fireball extends Actor {
 
   getNextPosition(time = 1) {
     let fireballVector = new Vector();
-    fireballVector = this.pos.plus(this.speed.times(time))
+    fireballVector = this.pos.plus(this.speed.times(time));
     return fireballVector;
   }
 
