@@ -111,25 +111,17 @@ class Level {
     const bottom = Math.floor(y + sizeY);
     const right = Math.floor(x + sizeX);
     const middle = Math.round(top + sizeY / 2);
-
-    if (this.isObstacle(left, top)) {
-      return grid[top][left];
+    
+    const horizontal_directions = [left, right];
+    const vertical_directions = [top, bottom, middle];
+    for (let hd of horizontal_directions) {
+      for (let vd of vertical_directions) {
+        if (this.isObstacle(hd, vd)) {
+          return grid[vd][hd];
+        }
+      }
     }
-    if (this.isObstacle(right, top)) {
-      return grid[top][right];
-    }
-    if (this.isObstacle(left, bottom)) {
-        return grid[bottom][left];
-    }
-    if (this.isObstacle(right, bottom)) {
-        return grid[bottom][right];
-    }
-    if (this.isObstacle(left, middle)) {
-        return grid[middle][left];
-    }
-    if (this.isObstacle(right, middle)) {
-        return grid[middle][right];
-    }
+    
     if (left < 0 || x + sizeX > this.width || top < 0) {
       return 'wall';
     }
@@ -319,10 +311,10 @@ const actorDict = {
  'o':Coin,
  '|':VerticalFireball
   };
-  const parser = new LevelParser(actorDict);
-  loadLevels()
+const parser = new LevelParser(actorDict);
+loadLevels()
   .then(schemas => runGame(JSON.parse(schemas), parser, DOMDisplay))
   .then(function(){
-    document.body.innerHTML = '<h1 style=\"color:red\">Вы выиграли приз!</h1>';
+    document.body.innerHTML = '<h1 style=\"color: #f00;position: absolute;top: 15%;font-size: 175px;\">Вы выиграли приз!</h1>';
   })
   .catch(err => alert.log(err));
